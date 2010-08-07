@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+<TextView  
+    android:text="Make a call to"
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:gravity="center_horizontal"
+    android:layout_marginTop="10px"
+    />
+<TextView  
+    android:text="351916429099"
+    android:textSize="36px"
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:gravity="center_horizontal"
+    android:layout_marginTop="10px"
+    android:id="@+id/alarmPhoneNr"
+    />
+<TextView  
+    android:text="from this number"
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:gravity="center_horizontal"
+    android:layout_marginTop="10px"
+    />
+<EditText
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:text=""
+    android:layout_marginTop="10px"
+    android:id="@+id/myPhoneNr"
+    />
+<TextView  
+    android:text="to trigger the alarm."
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:gravity="center_horizontal"
+    android:layout_marginTop="10px"
+    />
+<Button
+    android:text="Start"
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:gravity="center_horizontal"
+    android:layout_marginTop="10px"
+    android:id="@+id/startButton"
+    />
+</LinearLayout>
