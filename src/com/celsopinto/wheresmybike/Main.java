@@ -5,8 +5,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
+import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -15,9 +19,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class Main extends Activity {
-    /** Called when the activity is first created. */
-	private static enum AppState {
+public class Main 
+	extends Activity
+	implements LocationListener
+{
+
+	private static enum AppState 
+	{
 		STARTABLE,
 		STOPPABLE
 	}
@@ -36,8 +44,10 @@ public class Main extends Activity {
 			state = AppState.STOPPABLE;
 			remoteNr = et.getText().toString();
 	        registerIntent(this.getApplicationContext());
+	        startLocationPolling();
 			break;
 		case STOPPABLE:
+			cancelLocationPolling();
 			unregisterIntent(this.getApplicationContext());
 			b.setText("Start");
 			state = AppState.STARTABLE;
@@ -48,13 +58,15 @@ public class Main extends Activity {
 	}
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) 
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         TextView tv = (TextView)findViewById(R.id.alarmPhoneNr);
         Button button = (Button)findViewById(R.id.startButton);
         tv.setText(getThisPhoneNr());
-        button.setOnClickListener(new View.OnClickListener() {
+        button.setOnClickListener(new View.OnClickListener() 
+        {
 			
 			@Override
 			public void onClick(View v) {
@@ -64,7 +76,8 @@ public class Main extends Activity {
     }
     
     @Override
-    protected void onDestroy() {
+    protected void onDestroy() 
+    {
     	unregisterIntent(getApplicationContext());
     	super.onDestroy();
     }
@@ -91,7 +104,7 @@ public class Main extends Activity {
 						text = sms.getDisplayMessageBody();
 					
 					if (nr.endsWith(remoteNr))
-						Log.i("cpinto", String.format("Received %s", text));
+						handleIncomingText(text);
 				}
 			}
 			else if (intent.getAction().equals(PHONE))
@@ -114,6 +127,7 @@ public class Main extends Activity {
 				}, PhoneStateListener.LISTEN_CALL_STATE);
 			}
 		}
+
 	};
 	
 	private void registerIntent(Context ctx)
@@ -121,33 +135,91 @@ public class Main extends Activity {
     	IntentFilter filter = new IntentFilter(SMS);
     	filter.addAction(PHONE);
     	ctx.registerReceiver(listener, filter);
-    	Log.i("cpinto","listener started");
-		Log.i("cpinto","waiting for: " + remoteNr);
     }
     
     private void unregisterIntent(Context ctx)
     {
     	ctx.unregisterReceiver(listener);
-    	Log.i("cpinto","listener stopped");
     }
     
     
-	private String getThisPhoneNr(){
+	private String getThisPhoneNr()
+	{
     	return ((TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
 	}
 
-	/*
-MyLocation myLocation = new MyLocation();
-private void locationClick() {
-    myLocation.getLocation(this, locationResult));
-}
+	@Override
+	public void onLocationChanged(Location l) 
+	{
+		detectMotion(l);
+	}
+	
+	@Override
+	public void onProviderDisabled(String provider) 
+	{
+	}
+	
+	@Override
+	public void onProviderEnabled(String provider) 
+	{
+	}
+	
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) 
+	{
+	}
+	
+	/* the location change sensitivity in meters */
+	private static float SENSITIVITY = 50;
+	
+	private void startLocationPolling()
+	{
+		cancelLocationPolling();
+		LocationManager mgr = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+		mgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, SENSITIVITY, this);
+	}
+	
+	private void cancelLocationPolling()
+	{
+		LocationManager mgr = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+		mgr.removeUpdates(this);
+	}
+	
+	private Location lastKnownLocation = null;
+	private void detectMotion(Location location)
+	{
+		if (lastKnownLocation != null)
+		{
+			final double EARTH_RADIUS = 6371007.2;
+			double latDiff = Math.toRadians(location.getLatitude()-lastKnownLocation.getLatitude());
+			double longDiff = Math.toRadians(location.getLongitude()-lastKnownLocation.getLongitude());
+			double a = 	Math.sin(latDiff/2) * Math.sin(latDiff/2) +
+						Math.cos(Math.toRadians(lastKnownLocation.getLatitude())) * Math.cos(Math.toRadians(location.getLatitude())) *
+						Math.sin(longDiff/2) * Math.sin(longDiff/2);
+			double c = 2 * Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+			double d = EARTH_RADIUS * c;
+			if (d > SENSITIVITY)
+				sendAlert(location);
 
-public LocationResult locationResult = new LocationResult(){
-    @Override
-    public void gotLocation(final Location location){
-        //Got the location!
-        });
-    }
-};	 
-	 */
+		}
+		
+		lastKnownLocation = location;
+		
+	}
+
+	private void sendAlert(Location location) 
+	{
+		Log.i("cpinto",String.format("My Location: latitude: %1$.5f, longitude: %2$.5f. Map: http://maps.google.com/maps?q=%1$.5f,+%2$.5f",location.getLatitude(),location.getLongitude()));
+		SmsManager.getDefault().sendTextMessage(getThisPhoneNr(), 
+				null, 
+				String.format("My Location: latitude: %1$.5f, longitude: %2$.5f. Map: http://maps.google.com/maps?q=%1$.5f,+%2$.5f",location.getLatitude(),location.getLongitude()), 
+				null, 
+				null);
+	}
+	
+	private void handleIncomingText(String text) 
+	{
+		//TODO
+	}
+	
 }
