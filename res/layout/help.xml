@@ -8,47 +8,43 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-<!-- hiding these text views as they don't work very well In The Real World (tm) -->
 <TextView  
-    android:visibility="gone"
-    android:text="Alarm number is"
+    android:text="The alarm accepts the following commands through SMS:"
     android:layout_width="fill_parent" 
     android:layout_height="wrap_content" 
-    android:gravity="center_horizontal"
+    android:gravity="left"
     android:layout_marginTop="10px"
     />
 <TextView  
-    android:visibility="gone"
-    android:text="000"
-    android:textSize="36px"
+    android:text="pos - to get the current location"
     android:layout_width="fill_parent" 
     android:layout_height="wrap_content" 
-    android:gravity="center_horizontal"
+    android:gravity="left"
     android:layout_marginTop="10px"
-    android:id="@+id/alarmPhoneNr"
+    android:paddingLeft="20px"
     />
 <TextView  
-    android:text="Send alerts to"
+    android:text="start - to start the alarm"
     android:layout_width="fill_parent" 
     android:layout_height="wrap_content" 
-    android:gravity="center_horizontal"
+    android:gravity="left"
     android:layout_marginTop="10px"
+    android:paddingLeft="20px"
     />
-<EditText
+<TextView  
+    android:text="stop - to stop the alarm"
     android:layout_width="fill_parent" 
     android:layout_height="wrap_content" 
-    android:text=""
+    android:gravity="left"
     android:layout_marginTop="10px"
-    android:id="@+id/myPhoneNr"
-    android:phoneNumber="true"
+    android:paddingLeft="20px"
     />
-<Button
-    android:text="Start"
+<TextView  
+    android:text="You can call your mobile phone from the alarm phone to figure out what number to send messages to."
     android:layout_width="fill_parent" 
     android:layout_height="wrap_content" 
-    android:gravity="center_horizontal"
-    android:layout_marginTop="20px"
-    android:id="@+id/startButton"
+    android:gravity="left"
+    android:layout_marginTop="10px"
     />
 </LinearLayout>
 </ScrollView>
